@@ -1,7 +1,8 @@
 """认证路由 - 注册 / 登录"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.core.database import get_db
 from app.core.security import create_access_token, hash_password, verify_password
@@ -12,11 +13,13 @@ router = APIRouter(prefix="/api/auth", tags=["认证"])
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
-def register(user_in: UserCreate, db: Session = Depends(get_db)):
+async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     """注册新用户"""
-    if db.query(User).filter(User.username == user_in.username).first():
+    result = await db.execute(select(User).where(User.username == user_in.username))
+    if result.scalars().first():
         raise HTTPException(status_code=400, detail="用户名已存在")
-    if db.query(User).filter(User.email == user_in.email).first():
+    result = await db.execute(select(User).where(User.email == user_in.email))
+    if result.scalars().first():
         raise HTTPException(status_code=400, detail="邮箱已注册")
 
     user = User(
@@ -25,15 +28,16 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         hashed_password=hash_password(user_in.password),
     )
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    await db.commit()
+    await db.refresh(user)
     return user
 
 
 @router.post("/login", response_model=Token)
-def login(user_in: UserCreate, db: Session = Depends(get_db)):
+async def login(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
     """登录获取 JWT Token"""
-    user = db.query(User).filter(User.username == user_in.username).first()
+    result = await db.execute(select(User).where(User.username == user_in.username))
+    user = result.scalars().first()
     if not user or not verify_password(user_in.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

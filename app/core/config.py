@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # 数据库
-    DATABASE_URL: str = "sqlite:///./app.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
 
     # JWT
     SECRET_KEY: str = "change-me-to-a-random-secret-in-production"

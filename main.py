@@ -14,7 +14,8 @@ from app.routers import auth, items, users
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 启动时：自动建表
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     print(f"🚀 {settings.APP_NAME} started — DB tables created")
     yield
     # 关闭时：清理资源
@@ -54,7 +55,7 @@ app.include_router(items.router)
 
 # ---------- 健康检查 ----------
 @app.get("/health", tags=["系统"])
-def health_check():
+async def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
