@@ -1,11 +1,20 @@
 """Pydantic 请求/响应 Schema"""
 
 from pydantic import BaseModel, EmailStr
+from typing import Generic, TypeVar
+
+T = TypeVar("T")
+
+
+class Page(BaseModel, Generic[T]):
+    items: list[T]
+    total: int
 
 
 # ---------- Auth ----------
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
 
 
@@ -18,6 +27,15 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+
+
+class LoginRequest(BaseModel):
+    user: str
+    password: str
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
 
 
 class UserUpdate(BaseModel):

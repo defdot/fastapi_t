@@ -3,14 +3,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 from app.core.database import get_db
+from app.core.logging import get_logger
 from app.core.security import get_current_user
 from app.models.item import Item
 from app.models.user import User
-from app.schemas.schemas import ItemCreate, ItemOut, ItemUpdate
+from app.schemas.schemas import ItemCreate, ItemOut, ItemUpdate, Page
 
-router = APIRouter(prefix="/api/items", tags=["Item"])
+logger = get_logger(__name__)
+router = APIRouter(prefix="/api/items", tags=["Item"], dependencies=[Depends(get_current_user)])
 
 
 @router.post("/", response_model=ItemOut, status_code=status.HTTP_201_CREATED)
@@ -20,17 +23,20 @@ async def create_item(item_in: ItemCreate, current_user: User = Depends(get_curr
     db.add(item)
     await db.commit()
     await db.refresh(item)
+    logger.info("Item created: id=%d by user=%s", item.id, current_user.username)
     return item
 
 
-@router.get("/", response_model=list[ItemOut])
+@router.get("/", response_model=Page[ItemOut])
 async def list_items(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)):
     """获取 Item 列表（分页）"""
+    total_result = await db.execute(select(func.count(Item.id)))
+    total = total_result.scalar_one()
     result = await db.execute(select(Item).offset(skip).limit(limit))
-    return result.scalars().all()
+    return Page(items=result.scalars().all(), total=total)
 
 
-@router.get("/me", response_model=list[ItemOut])
+@router.get("/me", response_model=Page[ItemOut])
 async def list_my_items(
     skip: int = 0,
     limit: int = 20,
@@ -38,8 +44,11 @@ async def list_my_items(
     db: AsyncSession = Depends(get_db),
 ):
     """获取当前用户的 Item 列表"""
-    result = await db.execute(select(Item).where(Item.owner_id == current_user.id).offset(skip).limit(limit))
-    return result.scalars().all()
+    q = select(Item).where(Item.owner_id == current_user.id)
+    total_result = await db.execute(select(func.count(Item.id)).where(Item.owner_id == current_user.id))
+    total = total_result.scalar_one()
+    result = await db.execute(q.offset(skip).limit(limit))
+    return Page(items=result.scalars().all(), total=total)
 
 
 @router.get("/{item_id}", response_model=ItemOut)
@@ -70,6 +79,7 @@ async def update_item(
         setattr(item, key, value)
     await db.commit()
     await db.refresh(item)
+    logger.info("Item updated: id=%d by user=%s", item.id, current_user.username)
     return item
 
 
@@ -88,3 +98,4 @@ async def delete_item(
 
     await db.delete(item)
     await db.commit()
+    logger.info("Item deleted: id=%d by user=%s", item_id, current_user.username)

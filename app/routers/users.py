@@ -3,13 +3,16 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 from app.core.database import get_db
+from app.core.logging import get_logger
 from app.core.security import get_current_user, hash_password
 from app.models.user import User
-from app.schemas.schemas import UserOut, UserUpdate
+from app.schemas.schemas import Page, UserOut, UserUpdate
 
-router = APIRouter(prefix="/api/users", tags=["用户"])
+logger = get_logger(__name__)
+router = APIRouter(prefix="/api/users", tags=["用户"], dependencies=[Depends(get_current_user)])
 
 
 @router.get("/me", response_model=UserOut)
@@ -18,11 +21,13 @@ async def read_current_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/", response_model=list[UserOut])
+@router.get("/", response_model=Page[UserOut])
 async def list_users(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)):
     """获取用户列表（分页）"""
+    total_result = await db.execute(select(func.count(User.id)))
+    total = total_result.scalar_one()
     result = await db.execute(select(User).offset(skip).limit(limit))
-    return result.scalars().all()
+    return Page(items=result.scalars().all(), total=total)
 
 
 @router.get("/{user_id}", response_model=UserOut)
@@ -47,6 +52,7 @@ async def update_current_user(
         current_user.hashed_password = hash_password(user_in.password)
     await db.commit()
     await db.refresh(current_user)
+    logger.info("User updated: %s", current_user.username)
     return current_user
 
 
@@ -58,3 +64,4 @@ async def delete_current_user(
     """删除当前用户"""
     await db.delete(current_user)
     await db.commit()
+    logger.info("User deleted: %s", current_user.username)

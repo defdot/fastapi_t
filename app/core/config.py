@@ -7,14 +7,21 @@ class Settings(BaseSettings):
     # 应用
     APP_NAME: str = "FastAPI Demo"
     DEBUG: bool = False
+    LOG_LEVEL: str = "INFO"
+    LOG_DIR: str = "logs"
 
     # 数据库
-    DATABASE_URL: str = "sqlite+aiosqlite:///./app.db"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:sj1107@localhost:5455/fastapi_demo"
 
     # JWT
     SECRET_KEY: str = "change-me-to-a-random-secret-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # Gunicorn
+    WORKERS: int = 4
+    BIND: str = "0.0.0.0:8000"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

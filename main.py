@@ -8,18 +8,22 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import Base, engine
+from app.core.logging import get_logger, setup_logging
 from app.routers import auth, items, users
+
+logger = get_logger(__name__)
 
 # ---------- lifespan：应用启动/关闭时执行 ----------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    setup_logging()
     # 启动时：自动建表
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print(f"🚀 {settings.APP_NAME} started — DB tables created")
+    logger.info("%s started — DB tables created", settings.APP_NAME)
     yield
     # 关闭时：清理资源
-    print("👋 Shutting down...")
+    logger.info("Shutting down...")
 
 
 app = FastAPI(
@@ -43,7 +47,12 @@ async def add_process_time_header(request: Request, call_next):
     """记录请求处理耗时"""
     start = time.time()
     response = await call_next(request)
-    response.headers["X-Process-Time"] = str(time.time() - start)
+    elapsed = time.time() - start
+    response.headers["X-Process-Time"] = str(elapsed)
+    logger.info(
+        "%s %s -> %d (%.3fs)",
+        request.method, request.url.path, response.status_code, elapsed,
+    )
     return response
 
 
@@ -61,3 +70,6 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# 生产环境启动方式：
+#   gunicorn -c gunicorn.conf.py main:app
