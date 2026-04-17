@@ -5,3 +5,4 @@ app.db
 *.egg-info/
 .venv/
 logs/
+.vscode/
