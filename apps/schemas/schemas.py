@@ -14,11 +14,16 @@ class ResponseBase(BaseModel, Generic[T]):
 
 
 # 常见错误 responses 字典，路由可按需引用
-RESPONSE_400 = {400: {"model": ResponseBase[None], "description": "请求错误", "content": {"application/json": {"example": {"code": 400, "msg": "请求错误", "data": None}}}}}
-RESPONSE_401 = {401: {"model": ResponseBase[None], "description": "未认证", "content": {"application/json": {"example": {"code": 401, "msg": "未认证", "data": None}}}}}
-RESPONSE_403 = {403: {"model": ResponseBase[None], "description": "无权限", "content": {"application/json": {"example": {"code": 403, "msg": "无权限", "data": None}}}}}
-RESPONSE_404 = {404: {"model": ResponseBase[None], "description": "资源不存在", "content": {"application/json": {"example": {"code": 404, "msg": "资源不存在", "data": None}}}}}
-RESPONSE_422 = {422: {"model": ResponseBase[None], "description": "参数校验失败", "content": {"application/json": {"example": {"code": 422, "msg": "参数校验失败", "data": None}}}}}
+RESPONSE_400 = {400: {"model": ResponseBase[None], "description": "请求错误", 
+                      "content": {"application/json": {"example": {"code": 400, "msg": "请求错误", "data": None}}}}}
+RESPONSE_401 = {401: {"model": ResponseBase[None], "description": "未认证", 
+                      "content": {"application/json": {"example": {"code": 401, "msg": "未认证", "data": None}}}}}
+RESPONSE_403 = {403: {"model": ResponseBase[None], "description": "无权限", 
+                      "content": {"application/json": {"example": {"code": 403, "msg": "无权限", "data": None}}}}}
+RESPONSE_404 = {404: {"model": ResponseBase[None], "description": "资源不存在", 
+                      "content": {"application/json": {"example": {"code": 404, "msg": "资源不存在", "data": None}}}}}
+RESPONSE_422 = {422: {"model": ResponseBase[None], "description": "参数校验失败", 
+                      "content": {"application/json": {"example": {"code": 422, "msg": "参数校验失败", "data": None}}}}}
 
 class Page(BaseModel, Generic[T]):
     """分页数据"""
