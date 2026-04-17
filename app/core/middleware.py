@@ -78,16 +78,18 @@ async def access_log_middleware(request: Request, call_next) -> Response:
 
     # 从异常处理器获取错误信息
     error_msg = getattr(request.state, "error_msg", None)
+    log_payload = {
+        "ip": client_ip,
+        "method": request.method,
+        "path": path,
+        "params": params_str,
+        "status": response.status_code,
+        "latency": f"{elapsed:.3f}s"
+    }
     if error_msg:
-        logger.error(
-            "%s %s %s %s -> %d (%.3fs) error=%s",
-            client_ip, request.method, path, params_str,
-            response.status_code, elapsed, error_msg,
-        )
-    else:
-        logger.info(
-            "%s %s %s %s -> %d (%.3fs)",
-            client_ip, request.method, path, params_str,
-            response.status_code, elapsed,
-        )
+        log_payload["error"] = error_msg
+        log_func = logger.error
+    else:   
+        log_func = logger.info
+    log_func(f"{client_ip} {request.method} {path} -> {response.status_code} ({elapsed:.3f}s), payload: {log_payload}")
     return response

@@ -9,19 +9,26 @@ from app.core.database import get_db
 from app.core.logging import get_logger
 from app.core.security import get_current_user, hash_password
 from app.models.user import User
-from app.schemas.schemas import Page, ResponseBase, UserOut, UserUpdate
+from app.schemas.schemas import (
+    RESPONSE_401,
+    RESPONSE_404,
+    Page,
+    ResponseBase,
+    UserOut,
+    UserUpdate,
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/users", tags=["用户"], dependencies=[Depends(get_current_user)])
 
 
-@router.get("/me", response_model=ResponseBase[UserOut])
+@router.get("/me", response_model=ResponseBase[UserOut], responses={**RESPONSE_401})
 async def read_current_user(current_user: User = Depends(get_current_user)):
     """获取当前登录用户信息"""
     return ResponseBase(data=current_user)
 
 
-@router.get("/", response_model=ResponseBase[Page[UserOut]])
+@router.get("/", response_model=ResponseBase[Page[UserOut]], responses={**RESPONSE_401})
 async def list_users(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)):
     """获取用户列表（分页）"""
     total_result = await db.execute(select(func.count(User.id)))
@@ -30,7 +37,7 @@ async def list_users(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(
     return ResponseBase(data=Page(items=result.scalars().all(), total=total))
 
 
-@router.get("/{user_id}", response_model=ResponseBase[UserOut])
+@router.get("/{user_id}", response_model=ResponseBase[UserOut], responses={**RESPONSE_401, **RESPONSE_404})
 async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     """获取单个用户"""
     user = await db.get(User, user_id)
@@ -39,7 +46,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     return ResponseBase(data=user)
 
 
-@router.put("/me", response_model=ResponseBase[UserOut])
+@router.put("/me", response_model=ResponseBase[UserOut], responses={**RESPONSE_401})
 async def update_current_user(
     user_in: UserUpdate,
     current_user: User = Depends(get_current_user),
@@ -56,7 +63,7 @@ async def update_current_user(
     return ResponseBase(data=current_user)
 
 
-@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT, responses={**RESPONSE_401})
 async def delete_current_user(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

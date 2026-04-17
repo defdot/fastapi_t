@@ -15,7 +15,16 @@ from app.core.security import (
     verify_password,
 )
 from app.models.user import User
-from app.schemas.schemas import RefreshTokenRequest, ResponseBase, Token, UserCreate, UserOut
+from app.schemas.schemas import (
+    RESPONSE_400,
+    RESPONSE_401,
+    RESPONSE_422,
+    RefreshTokenRequest,
+    ResponseBase,
+    Token,
+    UserCreate,
+    UserOut,
+)
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["认证"])
@@ -23,11 +32,15 @@ router = APIRouter(prefix="/api/auth", tags=["认证"])
 
 def send_welcome_email(email: str, username: str):
     """后台任务：发送欢迎邮件"""
-    # 实际项目中替换为真实邮件发送逻辑
     logger.info("Welcome email sent to %s for user %s", email, username)
 
 
-@router.post("/register", response_model=ResponseBase[UserOut], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=ResponseBase[UserOut],
+    status_code=status.HTTP_201_CREATED,
+    responses={**RESPONSE_400, **RESPONSE_422},
+)
 async def register(user_in: UserCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     """注册新用户"""
     result = await db.execute(select(User).where(User.username == user_in.username))
@@ -51,7 +64,11 @@ async def register(user_in: UserCreate, background_tasks: BackgroundTasks, db: A
     return ResponseBase(data=user)
 
 
-@router.post("/login", response_model=ResponseBase[Token])
+@router.post(
+    "/login",
+    response_model=Token,
+    responses={**RESPONSE_401},
+)
 async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     """登录获取 JWT Token - 支持用户名或邮箱登录（OAuth2 兼容）"""
     result = await db.execute(
@@ -70,10 +87,14 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})
     logger.info("User logged in: %s", user.username)
-    return ResponseBase(data=Token(access_token=access_token, refresh_token=refresh_token))
+    return Token(access_token=access_token, refresh_token=refresh_token)
 
 
-@router.post("/refresh", response_model=ResponseBase[Token])
+@router.post(
+    "/refresh",
+    response_model=Token,
+    responses={**RESPONSE_401},
+)
 async def refresh(body: RefreshTokenRequest):
     """用 refresh token 换取新的 access token 和 refresh token"""
     payload = decode_access_token(body.refresh_token)
@@ -86,4 +107,4 @@ async def refresh(body: RefreshTokenRequest):
 
     access_token = create_access_token(data={"sub": username})
     new_rt = create_refresh_token(data={"sub": username})
-    return ResponseBase(data=Token(access_token=access_token, refresh_token=new_rt))
+    return Token(access_token=access_token, refresh_token=new_rt)
