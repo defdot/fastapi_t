@@ -1,11 +1,12 @@
 """认证路由 - 注册 / 登录"""
-import time
+
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import get_db
+from app.core.logging import get_logger
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -13,9 +14,8 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
-from app.core.logging import get_logger
 from app.models.user import User
-from app.schemas.schemas import RefreshTokenRequest, Token, UserCreate, UserOut
+from app.schemas.schemas import RefreshTokenRequest, ResponseBase, Token, UserCreate, UserOut
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["认证"])
@@ -27,7 +27,7 @@ def send_welcome_email(email: str, username: str):
     logger.info("Welcome email sent to %s for user %s", email, username)
 
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=ResponseBase[UserOut], status_code=status.HTTP_201_CREATED)
 async def register(user_in: UserCreate, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     """注册新用户"""
     result = await db.execute(select(User).where(User.username == user_in.username))
@@ -48,10 +48,10 @@ async def register(user_in: UserCreate, background_tasks: BackgroundTasks, db: A
 
     background_tasks.add_task(send_welcome_email, user.email, user.username)
     logger.info("User registered: %s", user.username)
-    return user
+    return ResponseBase(data=user)
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=ResponseBase[Token])
 async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     """登录获取 JWT Token - 支持用户名或邮箱登录（OAuth2 兼容）"""
     result = await db.execute(
@@ -70,10 +70,10 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})
     logger.info("User logged in: %s", user.username)
-    return Token(access_token=access_token, refresh_token=refresh_token)
+    return ResponseBase(data=Token(access_token=access_token, refresh_token=refresh_token))
 
 
-@router.post("/refresh", response_model=Token)
+@router.post("/refresh", response_model=ResponseBase[Token])
 async def refresh(body: RefreshTokenRequest):
     """用 refresh token 换取新的 access token 和 refresh token"""
     payload = decode_access_token(body.refresh_token)
@@ -86,4 +86,4 @@ async def refresh(body: RefreshTokenRequest):
 
     access_token = create_access_token(data={"sub": username})
     new_rt = create_refresh_token(data={"sub": username})
-    return Token(access_token=access_token, refresh_token=new_rt)
+    return ResponseBase(data=Token(access_token=access_token, refresh_token=new_rt))

@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.schemas.schemas import ErrorResponse
+from app.schemas.schemas import ResponseBase
 
 
 def register_exception_handlers(app: FastAPI) -> None:
@@ -18,7 +18,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request.state.error_msg = str(exc.detail)
         return JSONResponse(
             status_code=exc.status_code,
-            content=ErrorResponse(code=exc.status_code, msg=str(exc.detail)).model_dump(),
+            content=ResponseBase(code=exc.status_code, msg=str(exc.detail)).model_dump(),
         )
 
     @app.exception_handler(RequestValidationError)
@@ -28,7 +28,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         request.state.error_msg = f"参数校验失败: {detail}"
         return JSONResponse(
             status_code=422,
-            content=ErrorResponse(code=422, msg="参数校验失败", detail=detail).model_dump(),
+            content=ResponseBase(code=422, msg="参数校验失败", data={"detail": detail}).model_dump(),
         )
 
     @app.exception_handler(Exception)
@@ -36,5 +36,5 @@ def register_exception_handlers(app: FastAPI) -> None:
         request.state.error_msg = f"{exc}\n{traceback.format_exc()}"
         return JSONResponse(
             status_code=500,
-            content=ErrorResponse(code=500, msg="服务器内部错误").model_dump(),
+            content=ResponseBase(code=500, msg="服务器内部错误").model_dump(),
         )

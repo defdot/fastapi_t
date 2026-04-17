@@ -6,22 +6,22 @@ from typing import Generic, TypeVar
 T = TypeVar("T")
 
 
-class ErrorResponse(BaseModel):
-    """标准错误响应"""
-    code: int = Field(description="HTTP 状态码")
-    msg: str = Field(description="错误信息")
-    detail: str | None = Field(default=None, description="详细说明")
+class ResponseBase(BaseModel, Generic[T]):
+    """统一响应格式"""
+    code: int = Field(default=200, description="业务状态码")
+    msg: str = Field(default="ok", description="提示信息")
+    data: T | None = Field(default=None, description="响应数据")
 
 
 class Page(BaseModel, Generic[T]):
-    """分页响应"""
+    """分页数据"""
     items: list[T] = Field(description="数据列表")
     total: int = Field(description="总数量")
 
 
 # ---------- Auth ----------
 class Token(BaseModel):
-    """JWT Token 响应"""
+    """JWT Token"""
     access_token: str = Field(description="访问令牌")
     refresh_token: str = Field(description="刷新令牌")
     token_type: str = Field(default="bearer", description="令牌类型")
@@ -51,7 +51,7 @@ class UserUpdate(BaseModel):
 
 
 class UserOut(BaseModel):
-    """用户信息响应"""
+    """用户信息"""
     id: int = Field(description="用户 ID")
     username: str = Field(description="用户名")
     email: str = Field(description="邮箱")
@@ -74,7 +74,7 @@ class ItemUpdate(BaseModel):
 
 
 class ItemOut(BaseModel):
-    """Item 响应"""
+    """Item 信息"""
     id: int = Field(description="Item ID")
     title: str = Field(description="标题")
     description: str | None = Field(description="描述")

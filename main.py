@@ -11,6 +11,7 @@ from app.core.exceptions import register_exception_handlers
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import access_log_middleware
 from app.routers import auth, items, users
+from app.schemas.schemas import ResponseBase
 
 logger = get_logger(__name__)
 
@@ -57,9 +58,9 @@ app.include_router(items.router)
 
 
 # ---------- 健康检查 ----------
-@app.get("/health", tags=["系统"])
+@app.get("/health", tags=["系统"], response_model=ResponseBase[dict])
 async def health_check():
-    return {"status": "ok"}
+    return ResponseBase(data={"status": "ok"})
 
 if __name__ == "__main__":
     import uvicorn

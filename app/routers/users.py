@@ -9,37 +9,37 @@ from app.core.database import get_db
 from app.core.logging import get_logger
 from app.core.security import get_current_user, hash_password
 from app.models.user import User
-from app.schemas.schemas import Page, UserOut, UserUpdate
+from app.schemas.schemas import Page, ResponseBase, UserOut, UserUpdate
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/users", tags=["用户"], dependencies=[Depends(get_current_user)])
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=ResponseBase[UserOut])
 async def read_current_user(current_user: User = Depends(get_current_user)):
     """获取当前登录用户信息"""
-    return current_user
+    return ResponseBase(data=current_user)
 
 
-@router.get("/", response_model=Page[UserOut])
+@router.get("/", response_model=ResponseBase[Page[UserOut]])
 async def list_users(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(get_db)):
     """获取用户列表（分页）"""
     total_result = await db.execute(select(func.count(User.id)))
     total = total_result.scalar_one()
     result = await db.execute(select(User).offset(skip).limit(limit))
-    return Page(items=result.scalars().all(), total=total)
+    return ResponseBase(data=Page(items=result.scalars().all(), total=total))
 
 
-@router.get("/{user_id}", response_model=UserOut)
+@router.get("/{user_id}", response_model=ResponseBase[UserOut])
 async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     """获取单个用户"""
     user = await db.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="用户不存在")
-    return user
+    return ResponseBase(data=user)
 
 
-@router.put("/me", response_model=UserOut)
+@router.put("/me", response_model=ResponseBase[UserOut])
 async def update_current_user(
     user_in: UserUpdate,
     current_user: User = Depends(get_current_user),
@@ -53,7 +53,7 @@ async def update_current_user(
     await db.commit()
     await db.refresh(current_user)
     logger.info("User updated: %s", current_user.username)
-    return current_user
+    return ResponseBase(data=current_user)
 
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
