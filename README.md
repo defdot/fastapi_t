@@ -36,7 +36,8 @@ app/
     items.py         # Item CRUD
   schemas/
     schemas.py       # Pydantic 请求/响应模型
-main.py              # 应用入口
+  main.py            # 应用入口
+  __init__.py        # 包初始化 + CLI 入口
 gunicorn.conf.py     # Gunicorn 配置
 docker-compose.yml   # Docker Compose
 Dockerfile           # 容器构建
@@ -60,9 +61,9 @@ cp .env.example .env
 # 编辑 .env 设置数据库连接等
 
 # 启动
-python main.py
+python -m app.main
 # 或热重载模式
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ### Docker 部署
@@ -85,7 +86,7 @@ docker compose down -v
 
 ```bash
 pip install -e .
-gunicorn -c gunicorn.conf.py main:app
+gunicorn -c gunicorn.conf.py app.main:app
 ```
 
 ## API 文档

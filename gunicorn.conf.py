@@ -1,6 +1,6 @@
 """Gunicorn 配置 - 多进程管理 Uvicorn worker"""
 
-from apps.core.config import settings
+from app.core.config import settings
 
 # 监听地址
 bind = settings.BIND

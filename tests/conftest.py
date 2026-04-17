@@ -6,10 +6,10 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from apps.core.database import Base, get_db
-from apps.models.item import Item  # noqa: F401
-from apps.models.user import User  # noqa: F401
-from main import app
+from app.core.database import Base, get_db
+from app.main import app
+from app.models.item import Item  # noqa: F401
+from app.models.user import User  # noqa: F401
 
 # SQLite 内存数据库（异步）
 TEST_DATABASE_URL = "sqlite+aiosqlite://"

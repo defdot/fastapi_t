@@ -5,17 +5,17 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from apps.core.database import get_db
-from apps.core.logging import get_logger
-from apps.core.security import (
+from app.core.database import get_db
+from app.core.logging import get_logger
+from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_access_token,
     hash_password,
     verify_password,
 )
-from apps.models.user import User
-from apps.schemas.schemas import (
+from app.models.user import User
+from app.schemas.schemas import (
     RESPONSE_400,
     RESPONSE_401,
     RESPONSE_422,

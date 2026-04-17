@@ -5,7 +5,7 @@ import time
 
 from fastapi import Request, Response
 
-from apps.core.logging import get_logger
+from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 

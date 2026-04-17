@@ -19,4 +19,4 @@ RUN mkdir -p logs
 
 EXPOSE 8000
 
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "main:app"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "app.main:app"]

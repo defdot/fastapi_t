@@ -332,8 +332,9 @@ wheels = [
 [[package]]
 name = "fastapi-demo"
 version = "1.0.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
+    { name = "aiosqlite" },
     { name = "asyncpg" },
     { name = "email-validator" },
     { name = "fastapi" },
@@ -360,6 +361,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiosqlite", specifier = "==0.22.1" },
     { name = "aiosqlite", marker = "extra == 'dev'", specifier = ">=0.21.0" },
     { name = "asyncpg", specifier = "==0.30.0" },
     { name = "email-validator", specifier = ">=2.0" },
