@@ -30,3 +30,46 @@
 2026-04-17 09:53:37 | INFO     | __main__ | GET /.well-known/appspecific/com.chrome.devtools.json -> 404 (0.000s)
 2026-04-17 09:53:47 | INFO     | __main__ | GET /openapi.json -> 200 (0.008s)
 2026-04-17 09:54:03 | INFO     | __main__ | POST /api/auth/login -> 422 (0.001s)
+2026-04-17 09:57:27 | INFO     | __main__ | POST /api/auth/login -> 422 (0.001s)
+2026-04-17 09:57:28 | INFO     | __main__ | POST /api/auth/login -> 422 (0.001s)
+2026-04-17 09:57:28 | INFO     | __main__ | POST /api/auth/login -> 422 (0.001s)
+2026-04-17 09:57:28 | INFO     | __main__ | POST /api/auth/login -> 422 (0.001s)
+2026-04-17 10:07:00 | INFO     | __main__ | POST /api/auth/login -> 401 (0.019s)
+2026-04-17 10:07:10 | INFO     | __main__ | POST /api/auth/login -> 401 (0.005s)
+2026-04-17 10:07:22 | INFO     | app.routers.auth | User registered: alice
+2026-04-17 10:07:22 | INFO     | __main__ | POST /api/auth/register -> 201 (0.225s)
+2026-04-17 10:07:22 | INFO     | app.routers.auth | Welcome email sent to alice@example.com for user alice
+2026-04-17 10:07:32 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 10:07:32 | INFO     | __main__ | POST /api/auth/login -> 200 (0.212s)
+2026-04-17 10:19:29 | INFO     | __main__ | FastAPI Demo started — DB tables created
+2026-04-17 10:19:33 | INFO     | __main__ | GET /docs -> 200 (0.000s)
+2026-04-17 10:19:34 | INFO     | __main__ | GET /openapi.json -> 200 (0.010s)
+2026-04-17 10:19:44 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 10:19:44 | INFO     | __main__ | POST /api/auth/login -> 200 (0.206s)
+2026-04-17 10:20:09 | INFO     | __main__ | GET /api/users/me -> 200 (0.009s)
+2026-04-17 10:20:33 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 10:20:33 | INFO     | __main__ | POST /api/auth/login -> 200 (0.196s)
+2026-04-17 10:20:40 | INFO     | __main__ | GET /docs -> 200 (0.000s)
+2026-04-17 10:20:41 | INFO     | __main__ | GET /openapi.json -> 200 (0.001s)
+2026-04-17 10:20:48 | INFO     | app.routers.items | Item created: id=1 by user=alice
+2026-04-17 10:20:48 | INFO     | __main__ | POST /api/items/ -> 201 (0.020s)
+2026-04-17 10:22:26 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 10:22:26 | INFO     | __main__ | POST /api/auth/login -> 200 (0.200s)
+2026-04-17 10:27:21 | INFO     | __main__ | GET /api/users/ -> 401 (0.001s)
+2026-04-17 10:27:44 | INFO     | __main__ | Shutting down...
+2026-04-17 10:27:46 | INFO     | __main__ | FastAPI Demo started — DB tables created
+2026-04-17 10:27:51 | ERROR    | __main__ | GET /api/users/ -> 401 (0.004s)
+2026-04-17 10:28:45 | INFO     | __main__ | Shutting down...
+2026-04-17 10:28:46 | INFO     | __main__ | FastAPI Demo started — DB tables created
+2026-04-17 10:53:06 | INFO     | app.routers.auth | User registered: zhangsan4
+2026-04-17 10:53:06 | INFO     | __main__ | POST /api/auth/register -> 201 (0.217s)
+2026-04-17 10:53:06 | INFO     | app.routers.auth | Welcome email sent to zhangsan4@test.com for user zhangsan4
+2026-04-17 10:53:08 | INFO     | __main__ | POST /api/auth/register -> 400 (0.005s)
+2026-04-17 10:53:09 | INFO     | __main__ | POST /api/auth/register -> 400 (0.005s)
+2026-04-17 10:53:09 | INFO     | __main__ | POST /api/auth/register -> 400 (0.006s)
+2026-04-17 10:53:09 | INFO     | __main__ | POST /api/auth/register -> 400 (0.004s)
+2026-04-17 10:53:09 | INFO     | __main__ | POST /api/auth/register -> 400 (0.004s)
+2026-04-17 10:53:10 | INFO     | __main__ | POST /api/auth/register -> 400 (0.004s)
+2026-04-17 10:53:10 | INFO     | __main__ | POST /api/auth/register -> 400 (0.003s)
+2026-04-17 10:53:11 | INFO     | __main__ | POST /api/auth/register -> 400 (0.004s)
+2026-04-17 10:57:40 | INFO     | __main__ | POST /api/auth/register -> 422 (0.001s)

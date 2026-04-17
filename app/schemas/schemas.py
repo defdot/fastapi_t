@@ -6,6 +6,13 @@ from typing import Generic, TypeVar
 T = TypeVar("T")
 
 
+class ErrorResponse(BaseModel):
+    """标准错误响应"""
+    code: int = Field(description="HTTP 状态码")
+    msg: str = Field(description="错误信息")
+    detail: str | None = Field(default=None, description="详细说明")
+
+
 class Page(BaseModel, Generic[T]):
     """分页响应"""
     items: list[T] = Field(description="数据列表")
@@ -28,12 +35,6 @@ class UserCreate(BaseModel):
     """注册请求"""
     username: str = Field(description="用户名", examples=["alice"])
     email: EmailStr = Field(description="邮箱", examples=["alice@example.com"])
-    password: str = Field(description="密码", examples=["secret123"])
-
-
-class LoginRequest(BaseModel):
-    """登录请求 - 支持用户名或邮箱"""
-    username: str = Field(description="用户名或邮箱", examples=["alice"])
     password: str = Field(description="密码", examples=["secret123"])
 
 

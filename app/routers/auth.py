@@ -1,6 +1,7 @@
 """认证路由 - 注册 / 登录"""
 import time
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -14,7 +15,7 @@ from app.core.security import (
 )
 from app.core.logging import get_logger
 from app.models.user import User
-from app.schemas.schemas import LoginRequest, RefreshTokenRequest, Token, UserCreate, UserOut
+from app.schemas.schemas import RefreshTokenRequest, Token, UserCreate, UserOut
 
 logger = get_logger(__name__)
 router = APIRouter(prefix="/api/auth", tags=["认证"])
@@ -51,16 +52,16 @@ async def register(user_in: UserCreate, background_tasks: BackgroundTasks, db: A
 
 
 @router.post("/login", response_model=Token)
-async def login(user_in: LoginRequest, db: AsyncSession = Depends(get_db)):
-    """登录获取 JWT Token - 支持用户名或邮箱登录"""
+async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    """登录获取 JWT Token - 支持用户名或邮箱登录（OAuth2 兼容）"""
     result = await db.execute(
         select(User).where(
-            (User.username == user_in.username)
-            | (User.email == user_in.username)
+            (User.username == form.username)
+            | (User.email == form.username)
         )
     )
     user = result.scalars().first()
-    if not user or not verify_password(user_in.password, user.hashed_password):
+    if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="用户或密码错误",
