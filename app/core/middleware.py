@@ -2,13 +2,10 @@
 
 import json
 import time
-import traceback
 
 from fastapi import Request, Response
-from fastapi.responses import JSONResponse
 
 from app.core.logging import get_logger
-from app.schemas.schemas import ErrorResponse
 
 logger = get_logger(__name__)
 
@@ -33,7 +30,7 @@ def _get_client_ip(request: Request) -> str:
 
 
 async def _build_params(request: Request) -> dict:
-    """合并所有请求参数：query + path + body"""
+    """合并所有请求参数：query + path + body，并对敏感信息脱敏"""
     params: dict = {}
 
     if request.query_params:
@@ -42,68 +39,55 @@ async def _build_params(request: Request) -> dict:
     if hasattr(request, "path_params") and request.path_params:
         params.update(dict(request.path_params))
 
-    raw = await request.body()
-    print("raw body:", raw)
-    if raw:
-        content_type = request.headers.get("content-type", "")
-        if "application/json" in content_type:
-            body = json.loads(raw)
-            params.update(body)
-        elif "application/x-www-form-urlencoded" in content_type:
-            from urllib.parse import parse_qs
-            form = {k: v[0] if len(v) == 1 else v for k, v in parse_qs(raw.decode()).items()}
-            params.update(form)
+    content_type = request.headers.get("content-type", "")
+    if request.method in ("POST", "PUT", "PATCH"):
+        raw = await request.body()
+        # 缓存 body 供路由再次读取
+        if raw:
+            async def _receive():
+                return {"type": "http.request", "body": raw}
+            request._receive = _receive
 
-    params = _mask_sensitive(params)
-    return params
+            try:
+                if "application/json" in content_type:
+                    body = json.loads(raw)
+                    if isinstance(body, dict):
+                        params.update(body)
+                elif "application/x-www-form-urlencoded" in content_type:
+                    from urllib.parse import parse_qs
+                    form = {k: v[0] if len(v) == 1 else v for k, v in parse_qs(raw.decode()).items()}
+                    params.update(form)
+            except Exception:
+                pass
+
+    return _mask_sensitive(params)
 
 
 async def access_log_middleware(request: Request, call_next) -> Response:
-    """访问日志中间件：记录来源 IP、URL path、请求参数、状态、耗时、错误信息、异常堆栈"""
+    """访问日志中间件：记录来源 IP、URL path、请求参数、状态、耗时、错误信息"""
     start = time.time()
     client_ip = _get_client_ip(request)
     path = request.url.path
+    params = await _build_params(request)
+    params_str = json.dumps(params, ensure_ascii=False) if params else "-"
 
-    # 合并 query + path_params + body 参数，并脱敏敏感信息
-    params = _build_params(request)
     response = await call_next(request)
-    
+
     elapsed = time.time() - start
-    status_code = response.status_code
     response.headers["X-Process-Time"] = f"{elapsed:.3f}"
 
-    # 错误响应：读取 body 获取错误信息，并统一格式化
-    if status_code >= 400 and "application/json" in response.headers.get("content-type", ""):
-        try:
-            resp_body = b""
-            async for chunk in response.body_iterator:
-                resp_body += chunk
-            raw = json.loads(resp_body)
-
-            if isinstance(raw, dict) and "code" in raw and "msg" in raw:
-                resp = JSONResponse(status_code=status_code, content=raw)
-                error_msg = raw.get("msg")
-            else:
-                error_msg = raw.get("detail", str(raw)) if isinstance(raw, dict) else str(raw)
-                resp = JSONResponse(
-                    status_code=status_code,
-                    content=ErrorResponse(code=status_code, msg=error_msg).model_dump(),
-                )
-
-            resp.headers["X-Process-Time"] = f"{elapsed:.3f}"
-            log_fn = logger.error if status_code >= 500 else logger.warning
-            log_fn(
-                "%s %s %s %s -> %d (%.3fs) error=%s",
-                client_ip, request.method, path, params_str,
-                status_code, elapsed, error_msg,
-            )
-            return resp
-        except Exception:
-            pass
-
-    logger.info(
-        "%s %s %s %s -> %d (%.3fs)",
-        client_ip, request.method, path, params,
-        status_code, elapsed,
-    )
+    # 从异常处理器获取错误信息
+    error_msg = getattr(request.state, "error_msg", None)
+    if error_msg:
+        logger.error(
+            "%s %s %s %s -> %d (%.3fs) error=%s",
+            client_ip, request.method, path, params_str,
+            response.status_code, elapsed, error_msg,
+        )
+    else:
+        logger.info(
+            "%s %s %s %s -> %d (%.3fs)",
+            client_ip, request.method, path, params_str,
+            response.status_code, elapsed,
+        )
     return response

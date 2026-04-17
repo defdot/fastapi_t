@@ -219,3 +219,30 @@ Exception: 测试异常 - 注册失败
 2026-04-17 11:41:36 | INFO     | __main__ | Shutting down...
 2026-04-17 11:41:43 | INFO     | __main__ | FastAPI Demo started — DB tables created
 2026-04-17 11:41:46 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1 - -> 200 (0.018s)
+2026-04-17 11:42:39 | INFO     | __main__ | FastAPI Demo started — DB tables created
+2026-04-17 11:42:41 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1 - -> 200 (0.017s)
+2026-04-17 11:43:29 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1/ - -> 307 (0.000s)
+2026-04-17 11:43:29 | WARNING  | app.core.exceptions | GET /api/users/1 -> 401: 无效的认证凭据
+2026-04-17 11:43:29 | WARNING  | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1 - -> 401 (0.001s) error=无效的认证凭据
+2026-04-17 11:43:35 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1/ - -> 307 (0.000s)
+2026-04-17 11:43:35 | WARNING  | app.core.exceptions | GET /api/users/1 -> 401: 无效的认证凭据
+2026-04-17 11:43:35 | WARNING  | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1 - -> 401 (0.002s) error=无效的认证凭据
+2026-04-17 11:43:45 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1/ - -> 307 (0.001s)
+2026-04-17 11:43:45 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1 - -> 200 (0.004s)
+2026-04-17 11:43:51 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1/?a=ddd - -> 307 (0.000s)
+2026-04-17 11:43:51 | INFO     | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/api/users/1?a=ddd - -> 200 (0.005s)
+2026-04-17 11:49:28 | WARNING  | app.core.exceptions | GET /.well-known/appspecific/com.chrome.devtools.json -> 404: Not Found
+2026-04-17 11:49:28 | WARNING  | app.core.middleware | 127.0.0.1 GET http://127.0.0.1:8000/.well-known/appspecific/com.chrome.devtools.json - -> 404 (0.001s) error=Not Found
+2026-04-17 11:49:35 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 11:49:35 | INFO     | app.core.middleware | 127.0.0.1 POST http://127.0.0.1:8000/api/auth/login - -> 200 (0.203s)
+2026-04-17 13:35:00 | INFO     | __main__ | FastAPI Demo started — DB tables created
+2026-04-17 13:35:17 | INFO     | app.routers.auth | User registered: zhangsan5
+2026-04-17 13:35:17 | INFO     | app.core.middleware | 127.0.0.1 POST /api/auth/register {"username": "zhangsan5", "email": "zhangsan5@test.com", "password": "***"} -> 201 (0.224s)
+2026-04-17 13:35:17 | INFO     | app.routers.auth | Welcome email sent to zhangsan5@test.com for user zhangsan5
+2026-04-17 13:35:46 | ERROR    | app.core.middleware | 127.0.0.1 POST /api/auth/register {"username": "zhangsan5", "password": "***"} -> 422 (0.004s) error=参数校验失败: body.email: Field required
+2026-04-17 13:36:17 | INFO     | app.core.middleware | 127.0.0.1 GET /api/users/1/ {"a": "ddd"} -> 307 (0.000s)
+2026-04-17 13:36:17 | ERROR    | app.core.middleware | 127.0.0.1 GET /api/users/1 {"a": "ddd"} -> 401 (0.009s) error=无效的认证凭据
+2026-04-17 13:36:28 | INFO     | app.routers.auth | User logged in: alice
+2026-04-17 13:36:28 | INFO     | app.core.middleware | 127.0.0.1 POST /api/auth/login {"grant_type": "password", "username": "alice", "password": "***"} -> 200 (0.202s)
+2026-04-17 13:36:34 | INFO     | app.core.middleware | 127.0.0.1 GET /api/users/ {"skip": "0", "limit": "20"} -> 200 (0.025s)
+2026-04-17 13:36:54 | ERROR    | app.core.middleware | 127.0.0.1 POST /api/auth/register {"username": "zhangsan5", "email": "zhangsan5@test.com", "password": "***"} -> 400 (0.004s) error=用户名已存在
