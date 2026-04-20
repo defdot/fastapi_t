@@ -19,11 +19,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 # ---------- 密码哈希 ----------
 def hash_password(password: str) -> str:
-    return str(bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode())
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bool(bcrypt.checkpw(plain.encode(), hashed.encode()))
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 # ---------- JWT ----------

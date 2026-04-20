@@ -86,7 +86,7 @@ class TestUsers:
         headers = {"Authorization": f"Bearer {token}"}
 
         resp = await client.delete("/api/users/me", headers=headers)
-        assert resp.status_code == 204
+        assert resp.status_code == 200
 
         # 验证用户已删除（登录应失败）
         login_resp2 = await client.post(

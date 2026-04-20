@@ -1,6 +1,6 @@
 # FastAPI Demo
 
-用户认证与 CRUD 示例项目，基于 FastAPI + SQLAlchemy + PostgreSQL。
+用户认证与 CRUD 示例项目，基于 FastAPI + SQLModel + PostgreSQL。
 
 ## 功能
 
@@ -24,7 +24,7 @@ app/
   main.py            # 应用入口
   core/
     config.py        # pydantic-settings 配置
-    database.py      # SQLAlchemy 异步引擎
+    database.py      # SQLModel 异步引擎
     security.py      # JWT + 密码工具
     logging.py       # 日志配置（控制台 + 文件轮转）
     exceptions.py    # 全局异常处理器
@@ -128,6 +128,17 @@ Swagger 使用：点击 Authorize → 输入用户名/密码 → 自动获取 to
 
 ```bash
 pytest tests/ -v
+```
+
+### 7. 代码检查
+
+```bash
+# Ruff — 代码规范 + 格式化
+ruff check .
+ruff format --check .
+
+# Mypy — 类型检查
+mypy app/
 ```
 
 ## 统一响应格式
