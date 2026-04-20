@@ -15,11 +15,13 @@
 - Swagger 文档（Authorize 按钮可直接测试认证接口）
 - Gunicorn + Uvicorn 多进程
 - Docker 容器化部署
+- GitHub Actions CI/CD
 
 ## 项目结构
 
 ```
 app/
+  main.py            # 应用入口
   core/
     config.py        # pydantic-settings 配置
     database.py      # SQLAlchemy 异步引擎
@@ -36,11 +38,11 @@ app/
     items.py         # Item CRUD
   schemas/
     schemas.py       # Pydantic 请求/响应模型
-  main.py            # 应用入口
-  __init__.py        # 包初始化 + CLI 入口
+  alembic/           # 数据库迁移
 gunicorn.conf.py     # Gunicorn 配置
 docker-compose.yml   # Docker Compose
 Dockerfile           # 容器构建
+tests/               # 测试用例
 ```
 
 ## 快速开始
@@ -48,28 +50,52 @@ Dockerfile           # 容器构建
 ### 环境要求
 
 - Python 3.12+
-- PostgreSQL 16+
+- PostgreSQL 16+（本地开发可用 SQLite）
 
-### 本地开发
+### 1. 安装依赖
 
 ```bash
-# 安装依赖
 pip install -e ".[dev]"
+```
 
-# 配置环境变量
+### 2. 配置环境变量
+
+```bash
 cp .env.example .env
-# 编辑 .env 设置数据库连接等
+```
 
-# 启动
-python -m app.main
-# 或热重载模式
+编辑 `.env`，按需修改（本地开发默认用 SQLite，无需额外配置 PostgreSQL）：
+
+```ini
+DATABASE_URL=sqlite+aiosqlite:///./app.db    # SQLite（默认）
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/dbname  # PostgreSQL
+SECRET_KEY=your-random-secret-key              # 生产环境务必修改
+```
+
+### 3. 启动服务
+
+**开发模式（热重载）：**
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-### Docker 部署
+**开发模式（单进程）：**
 
 ```bash
-# 启动所有服务（PostgreSQL + Web）
+python -m app.main
+```
+
+**生产模式（Gunicorn 多进程）：**
+
+```bash
+gunicorn -c gunicorn.conf.py app.main:app
+```
+
+**Docker 部署（PostgreSQL + Web）：**
+
+```bash
+# 构建并启动
 docker compose up -d --build
 
 # 查看日志
@@ -82,23 +108,27 @@ docker compose down
 docker compose down -v
 ```
 
-### 生产环境（非 Docker）
+### 4. 验证启动
 
 ```bash
-pip install -e .
-gunicorn -c gunicorn.conf.py app.main:app
+curl http://localhost:8000/health
+# {"code":200,"msg":"ok","data":{"status":"ok"}}
 ```
 
-## API 文档
-
-启动后访问：
+### 5. 访问 API 文档
 
 | 地址 | 说明 |
 |------|------|
-| `/docs` | Swagger UI（可交互测试） |
-| `/redoc` | ReDoc（只读文档） |
+| http://localhost:8000/docs | Swagger UI（可交互测试） |
+| http://localhost:8000/redoc | ReDoc（只读文档） |
 
 Swagger 使用：点击 Authorize → 输入用户名/密码 → 自动获取 token → 测试认证接口。
+
+### 6. 运行测试
+
+```bash
+pytest tests/ -v
+```
 
 ## 统一响应格式
 
