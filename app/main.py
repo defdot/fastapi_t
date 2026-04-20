@@ -1,6 +1,7 @@
 """FastAPI 应用入口"""
 
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,7 +21,7 @@ logger = get_logger(__name__)
 
 # ---------- lifespan：应用启动/关闭时执行 ----------
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> Any:
     setup_logging()
     try:
         async with engine.begin() as conn:
@@ -61,8 +62,8 @@ app.include_router(items.router)
 
 
 # ---------- 健康检查 ----------
-@app.get("/health", tags=["系统"], response_model=ResponseBase[dict])
-async def health_check():
+@app.get("/health", tags=["系统"], response_model=ResponseBase[dict[str, Any]])
+async def health_check() -> Any:
     return ResponseBase(data={"status": "ok"})
 
 

@@ -14,7 +14,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     """注册全局异常处理器"""
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
         request.state.error_msg = str(exc.detail)
         return JSONResponse(
             status_code=exc.status_code,
@@ -22,7 +22,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
         errors = exc.errors()
         detail = "; ".join(f"{'.'.join(str(x) for x in e['loc'])}: {e['msg']}" for e in errors)
         request.state.error_msg = f"参数校验失败: {detail}"
@@ -32,7 +32,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def global_exception_handler(request: Request, exc: Exception):
+    async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         request.state.error_msg = f"{exc}\n{traceback.format_exc()}"
         return JSONResponse(
             status_code=500,

@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # 应用
     APP_NAME: str = "FastAPI Demo"
-    DEBUG: bool = False
+    DEBUG: bool = True
     LOG_LEVEL: str = "INFO"
     LOG_DIR: str = "logs"
 

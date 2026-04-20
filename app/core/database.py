@@ -1,11 +1,14 @@
 """数据库连接与会话管理"""
 
+from collections.abc import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app.core.config import settings
 
-connect_args = {}
+connect_args: dict[str, object] = {}
 
 engine = create_async_engine(
     settings.DATABASE_URL,
@@ -19,6 +22,6 @@ AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_co
 
 
 # 依赖注入：获取数据库会话
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as db:
         yield db

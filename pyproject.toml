@@ -27,6 +27,7 @@ dev = [
     "aiosqlite>=0.21.0",
     "ruff",
     "pre-commit",
+    "mypy>=1.10",
 ]
 
 [build-system]
@@ -51,3 +52,7 @@ exclude = [
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
