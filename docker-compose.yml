@@ -8,11 +8,16 @@ services:
       - "--providers.file.directory=/etc/traefik"  # 文件配置
       - "--providers.file.watch=true"              # 自动监测配置变化
       - "--entrypoints.web.address=:80"            # HTTP 入口
+      - "--entrypoints.websecure.address=:443"     # HTTPS 入口
     ports:
       - "80:80"       # HTTP
+      - "443:443"     # HTTPS
       - "8080:8080"   # Traefik Dashboard
     volumes:
       - ./traefik:/etc/traefik
+      - ./certs:/certs                         # 本地证书目录（开发环境）
+      # 生产环境使用 Let's Encrypt 时挂载此目录:
+      # - ./letsencrypt:/letsencrypt
 
   db:
     image: postgres:16-alpine
