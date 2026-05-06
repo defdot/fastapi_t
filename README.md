@@ -89,7 +89,7 @@ python -m app.main
 **生产模式（Gunicorn 多进程）：**
 
 ```bash
-gunicorn -c gunicorn.conf.py app.main:app
+fastapi run --workers ${WORKERS:-4} main.py
 ```
 
 **Docker 部署（Traefik + PostgreSQL + Web）：**
