@@ -45,7 +45,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["python", "init_db.py"]
+    command: bash scripts/init_db.sh
 
   web:
     build: .
