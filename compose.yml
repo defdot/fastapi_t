@@ -47,7 +47,7 @@ services:
         condition: service_healthy
     command: bash scripts/init_db.sh
 
-  web:
+  backend:
     build: .
     restart: always
     environment:
