@@ -1,0 +1,15 @@
+name: Add to project
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+jobs:
+  add-to-project:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Add issue to project
+        uses: peter-evans/add-to-project@v1
+        with:
+          project-url: https://github.com/users/def-dot/projects/2
