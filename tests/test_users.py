@@ -73,6 +73,7 @@ class TestUsers:
                 "username": "deleteme",
                 "email": "delete@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_resp = await client.post(

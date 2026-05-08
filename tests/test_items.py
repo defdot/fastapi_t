@@ -64,6 +64,7 @@ class TestItems:
                 "username": "owner",
                 "email": "owner@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_a = await client.post("/api/auth/login", data={"username": "owner", "password": "secret123"})
@@ -79,6 +80,7 @@ class TestItems:
                 "username": "thief",
                 "email": "thief@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_b = await client.post("/api/auth/login", data={"username": "thief", "password": "secret123"})
@@ -106,6 +108,7 @@ class TestItems:
                 "username": "owner2",
                 "email": "owner2@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_a = await client.post("/api/auth/login", data={"username": "owner2", "password": "secret123"})
@@ -121,6 +124,7 @@ class TestItems:
                 "username": "thief2",
                 "email": "thief2@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_b = await client.post("/api/auth/login", data={"username": "thief2", "password": "secret123"})

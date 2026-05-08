@@ -55,6 +55,7 @@ async def auth_token(client: AsyncClient) -> str:
             "username": "testuser",
             "email": "test@example.com",
             "password": "secret123",
+            "confirm_password": "secret123",
         },
     )
     resp = await client.post(

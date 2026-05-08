@@ -11,6 +11,7 @@ class TestRegister:
                 "username": "alice",
                 "email": "alice@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         assert resp.status_code == 201
@@ -27,6 +28,7 @@ class TestRegister:
                 "username": "bob",
                 "email": "bob@example.com",
                 "password": "secret",
+                "confirm_password": "secret",
             },
         )
         resp = await client.post(
@@ -35,6 +37,7 @@ class TestRegister:
                 "username": "bob",
                 "email": "bob2@example.com",
                 "password": "secret",
+                "confirm_password": "secret",
             },
         )
         assert resp.status_code == 400
@@ -47,6 +50,7 @@ class TestRegister:
                 "username": "charlie",
                 "email": "charlie@example.com",
                 "password": "secret",
+                "confirm_password": "secret",
             },
         )
         resp = await client.post(
@@ -55,6 +59,7 @@ class TestRegister:
                 "username": "charlie2",
                 "email": "charlie@example.com",
                 "password": "secret",
+                "confirm_password": "secret",
             },
         )
         assert resp.status_code == 400
@@ -73,6 +78,7 @@ class TestLogin:
                 "username": "alice",
                 "email": "alice@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         resp = await client.post(
@@ -95,6 +101,7 @@ class TestLogin:
                 "username": "bob",
                 "email": "bob@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         resp = await client.post(
@@ -113,6 +120,7 @@ class TestLogin:
                 "username": "carol",
                 "email": "carol@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         resp = await client.post(
@@ -143,6 +151,7 @@ class TestRefresh:
                 "username": "alice",
                 "email": "alice@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_resp = await client.post(
@@ -150,6 +159,7 @@ class TestRefresh:
             data={
                 "username": "alice",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         refresh_token = login_resp.json()["refresh_token"]
@@ -172,6 +182,7 @@ class TestRefresh:
                 "username": "bob",
                 "email": "bob@example.com",
                 "password": "secret123",
+                "confirm_password": "secret123",
             },
         )
         login_resp = await client.post(
