@@ -68,7 +68,9 @@ async def _build_params(request: Request) -> dict[str, Any]:
     return _mask_sensitive(params)
 
 
-async def access_log_middleware(request: Request, call_next: Callable[[Request], Coroutine[Any, Any, Response]]) -> Response:
+async def access_log_middleware(
+    request: Request, call_next: Callable[[Request], Coroutine[Any, Any, Response]]
+) -> Response:
     """访问日志中间件：记录来源 IP、URL path、请求参数、状态、耗时、错误信息"""
     start = time.time()
     client_ip = _get_client_ip(request)
@@ -97,4 +99,5 @@ async def access_log_middleware(request: Request, call_next: Callable[[Request],
     else:
         log_func = logger.info
     log_func(f"{client_ip} {request.method} {path} -> {response.status_code} ({elapsed:.3f}s), payload: {log_payload}")
+    print("over")
     return response
